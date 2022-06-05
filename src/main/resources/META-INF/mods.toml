@@ -1,0 +1,13 @@
+modLoader="javafml"
+loaderVersion="[40,)"
+license="MIT License"
+[[mods]]
+modId="powertool"
+version="${file.jarVersion}"
+displayName="PowerTool"
+logoFile="powertool.png"
+credits="Thanks for this example mod goes to Java"
+authors="Love, Cheese and small house plants"
+description='''
+A powerful tool for a powerful purpose
+'''
