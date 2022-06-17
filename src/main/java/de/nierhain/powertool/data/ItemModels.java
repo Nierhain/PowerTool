@@ -15,5 +15,6 @@ public class ItemModels extends ItemModelProvider {
     @Override
     protected void registerModels() {
         singleTexture(Registration.POWER_TOOL.get().getRegistryName().getPath(),mcLoc("item/generated"), "layer0", modLoc("item/powertool"));
+        singleTexture(Registration.UPGRADE_ITEM.get().getRegistryName().getPath(),mcLoc("item/generated"), "layer0", modLoc("item/upgrade"));
     }
 }

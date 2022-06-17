@@ -1,6 +1,7 @@
 package de.nierhain.powertool.setup;
 
 import de.nierhain.powertool.items.PowerToolItem;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -18,4 +19,5 @@ public class Registration {
         ITEMS.register(bus);
     }
     public static final RegistryObject<Item> POWER_TOOL = ITEMS.register("powertool", PowerToolItem::new);
+    public static final RegistryObject<Item> UPGRADE_ITEM = ITEMS.register("upgrade",() -> new Item(new Item.Properties().tab(CreativeModeTab.TAB_MISC).fireResistant()));
 }

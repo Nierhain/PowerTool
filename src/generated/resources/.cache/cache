@@ -1,3 +1,10 @@
 ae44f5a1921846ab3caa0c4c88a07c8d70be19af assets/powertool/models/item/powertool.json
+b13c2761287dff806bff3b4342c02d06668d66aa assets/powertool/models/item/upgrade.json
 4631ef07f02a68b4eeae3f68e1bfcea6f134b7eb data/forge/tags/blocks/mineable/powertool.json
 36cc9c9cebd3f82ce66f14c2d83848d49c5a972e data/forge/tags/items/powertool.json
+374c2269cdfde3641be62f7683b171a5ebc183ad data/powertool/advancements/recipes/misc/upgrade.json
+585399039b8c144393344e9216e5661abbc90e4c data/powertool/advancements/recipes/tools/powertool.json
+9fe8527f0d25953151063f86e2fcdfc18761c208 data/powertool/advancements/recipes/tools/upgraded_powertool.json
+688f5d5b366b55158c4c3cc17ed69d2d86ca693e data/powertool/recipes/powertool.json
+cd396d2cc5367412e682bcf1999cb8809e765af9 data/powertool/recipes/upgrade.json
+90317b0880ce32395969d3e2a15d52f3c5806dbf data/powertool/recipes/upgraded_powertool.json

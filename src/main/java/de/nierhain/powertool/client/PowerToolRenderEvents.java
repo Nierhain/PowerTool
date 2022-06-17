@@ -48,7 +48,7 @@ public class PowerToolRenderEvents {
         BlockPos origin = blockTrace.getBlockPos();
         BlockState state = level.getBlockState(origin);
 
-        List<BlockPos> extraBlocks = PowerToolItem.getExtraBlocks(level, origin, player);
+        List<BlockPos> extraBlocks = PowerToolItem.getExtraBlocks(level, origin, player, PowerToolItem.getMode(player.getMainHandItem()));
         // set up renderer
         LevelRenderer levelRenderer = event.getLevelRenderer();
         PoseStack matrices = event.getPoseStack();
@@ -78,7 +78,7 @@ public class PowerToolRenderEvents {
         Level level = Minecraft.getInstance().level;
         Player player = Minecraft.getInstance().player;
         if(level == null || player == null || Minecraft.getInstance().getCameraEntity() == null) return;
-        if(isHoldingExtendedPowerTool(player) || !isHittingBlock(Minecraft.getInstance().hitResult)) return;
+        if(!isHoldingExtendedPowerTool(player) || !isHittingBlock(Minecraft.getInstance().hitResult)) return;
 
         BlockHitResult blockTrace = (BlockHitResult) Minecraft.getInstance().hitResult;
         BlockPos target = blockTrace.getBlockPos();
@@ -92,7 +92,7 @@ public class PowerToolRenderEvents {
         if(progress == null) return;
 
         BlockState state = level.getBlockState(target);
-        List<BlockPos> extraBlocks = PowerToolItem.getExtraBlocks(level, target, player);
+        List<BlockPos> extraBlocks = PowerToolItem.getExtraBlocks(level, target, player, PowerToolItem.getMode(player.getMainHandItem()));
         // set up buffers
         PoseStack matrices = event.getPoseStack();
         matrices.pushPose();

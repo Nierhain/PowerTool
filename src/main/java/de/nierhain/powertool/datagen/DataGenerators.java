@@ -3,6 +3,7 @@ package de.nierhain.powertool.datagen;
 import de.nierhain.powertool.PowerTool;
 import de.nierhain.powertool.data.ItemModels;
 import de.nierhain.powertool.data.PowerToolLanguageProvider;
+import de.nierhain.powertool.data.PowerToolRecipe;
 import de.nierhain.powertool.data.PowerToolTags;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.tags.BlockTagsProvider;
@@ -19,6 +20,7 @@ public class DataGenerators {
             BlockTagsProvider blockTagsProvider = new PowerToolTags(generator, event.getExistingFileHelper());
             generator.addProvider(blockTagsProvider);
             generator.addProvider(new PowerToolTags.PowerToolItemTag(generator, blockTagsProvider, event.getExistingFileHelper()));
+            generator.addProvider(new PowerToolRecipe(generator));
         }
         if(event.includeClient()){
             generator.addProvider(new ItemModels(generator, PowerTool.MODID, event.getExistingFileHelper()));

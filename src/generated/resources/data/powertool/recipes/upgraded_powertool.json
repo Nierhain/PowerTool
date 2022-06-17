@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "powertool",
+  "ingredients": [
+    {
+      "item": "powertool:powertool"
+    },
+    {
+      "item": "powertool:upgrade"
+    }
+  ],
+  "result": {
+    "item": "powertool:powertool",
+    "nbt": {
+      "isExtended": 0,
+      "isUpgraded": 1
+    }
+  }
+}
