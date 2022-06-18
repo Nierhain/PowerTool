@@ -41,6 +41,7 @@ import java.util.Collection;
 import java.util.List;
 
 import static de.nierhain.powertool.data.PowerToolTags.MINEABLE_WITH_POWERTOOL;
+import static de.nierhain.powertool.setup.Registration.ITEM_GROUP;
 import static de.nierhain.powertool.utils.PowerToolUtils.*;
 
 public class PowerToolItem extends DiggerItem{
@@ -48,17 +49,18 @@ public class PowerToolItem extends DiggerItem{
     private static final int THREE_BY_THREE = 1;
     private static final int FIVE_BY_FIVE = 2;
     public PowerToolItem() {
-        super(0, 0, PowerToolTier.POWERTOOL, MINEABLE_WITH_POWERTOOL, new Item.Properties().tab(CreativeModeTab.TAB_TOOLS));
+        super(0, 0, PowerToolTier.POWERTOOL, MINEABLE_WITH_POWERTOOL, new Item.Properties().tab(ITEM_GROUP));
     }
 
     @Override
-    public void onCraftedBy(ItemStack pStack, Level pLevel, Player pPlayer) {
-        CompoundTag tag = pStack.getOrCreateTag();
-        if(!tag.contains(NBTTags.EXTENDED)) tag.putInt(NBTTags.EXTENDED, 0);
-        if(!tag.contains(NBTTags.UPGRADED)) tag.putBoolean(NBTTags.UPGRADED, false);
-        if(!tag.contains(NBTTags.LUCKY)) tag.putBoolean(NBTTags.LUCKY, false);
-        if(!tag.contains(NBTTags.MAGNETIC)) tag.putBoolean(NBTTags.MAGNETIC, false);
-        super.onCraftedBy(pStack, pLevel, pPlayer);
+    public ItemStack getDefaultInstance() {
+        ItemStack stack = new ItemStack(this);
+        CompoundTag tag = stack.getOrCreateTag();
+        tag.putInt(NBTTags.EXTENDED, 0);
+        tag.putBoolean(NBTTags.UPGRADED, false);
+        tag.putBoolean(NBTTags.LUCKY, false);
+        tag.putBoolean(NBTTags.MAGNETIC, false);
+        return stack;
     }
 
     @Override
