@@ -18,7 +18,15 @@ public class PowerToolUtils {
     private static boolean checkTag(String key, ItemStack stack, TagType type){
         CompoundTag tag = stack.getOrCreateTag();
         if(tagExists(tag, key, type)) {
-            return tag.getBoolean(key);
+            if(type == TagType.Boolean){
+                return tag.getBoolean(key);
+            }
+            if(type == TagType.Integer){
+                return tag.getInt(key) != DefaultTags.getDefaultInt(key);
+            }
+            if(type == TagType.String){
+                return !tag.getString(key).equals(DefaultTags.getDefaultString(key));
+            }
         }
         return false;
     }
@@ -40,6 +48,9 @@ public class PowerToolUtils {
         return checkTag(NBTTags.UPGRADED, stack, TagType.Boolean);
     }
 
+    public static boolean isExtended(ItemStack stack){
+        return checkTag(NBTTags.EXTENDED, stack, TagType.Integer);
+    }
 
     public static boolean isToolMagnetic(ItemStack stack){
         return checkTag(NBTTags.MAGNETIC, stack, TagType.Boolean);

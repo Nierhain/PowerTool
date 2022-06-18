@@ -1,4 +1,4 @@
-package de.nierhain.powertool.data.recipe;
+package de.nierhain.powertool.utils;
 
 import de.nierhain.powertool.setup.NBTTags;
 

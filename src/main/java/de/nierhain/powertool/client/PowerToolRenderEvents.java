@@ -34,6 +34,7 @@ import net.minecraftforge.fml.common.Mod;
 import java.util.List;
 
 import static de.nierhain.powertool.utils.PowerToolUtils.getMode;
+import static de.nierhain.powertool.utils.PowerToolUtils.isExtended;
 
 @Mod.EventBusSubscriber(modid = PowerTool.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class PowerToolRenderEvents {
@@ -122,7 +123,7 @@ public class PowerToolRenderEvents {
 
     private static boolean isHoldingExtendedPowerTool(Player player){
         ItemStack stack = player.getMainHandItem();
-        return !stack.isEmpty() && stack.is(PowerToolTags.PowerToolItemTag.POWER_TOOL) && PowerToolItem.isExtended(stack);
+        return !stack.isEmpty() && stack.is(PowerToolTags.PowerToolItemTag.POWER_TOOL) && isExtended(stack);
     }
 
     private static boolean isHittingBlock(HitResult result){

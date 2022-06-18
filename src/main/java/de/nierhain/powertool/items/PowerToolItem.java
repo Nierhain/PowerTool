@@ -9,6 +9,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
@@ -25,6 +26,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.MinecraftForge;
@@ -35,6 +37,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import static de.nierhain.powertool.data.PowerToolTags.MINEABLE_WITH_POWERTOOL;
@@ -140,22 +143,17 @@ public class PowerToolItem extends DiggerItem{
         Player player = (Player) entity;
         List<BlockPos> blocks = getAllBlocks(level, originalPos, entity, getMode(stack));
         if(!level.isClientSide) {
-            List<ItemStack> drops = new ArrayList<>();
             ItemStack tempTool = stack.copy();
             int fortune = 0;
-            for (BlockPos pos:
-                 blocks) {
+            if(isToolLucky(stack)){
+                fortune = Enchantments.BLOCK_FORTUNE.getMaxLevel();
+                tempTool.enchant(Enchantments.BLOCK_FORTUNE, fortune);
+            }
+            for (BlockPos pos: blocks) {
                 BlockState extraState = level.getBlockState(pos);
                 Block block = extraState.getBlock();
-                if(!extraState.isAir() && extraState.is(MINEABLE_WITH_POWERTOOL) && extraState.hasBlockEntity()){
-                    BlockEvent.BreakEvent event = new BlockEvent.BreakEvent(level, pos, extraState, player);
-                    MinecraftForge.EVENT_BUS.post(event);
-                    if(isToolLucky(stack)){
-                        fortune = Enchantments.BLOCK_FORTUNE.getMaxLevel();
-                        tempTool.enchant(Enchantments.BLOCK_FORTUNE, fortune);
-                    }
-                    drops.addAll(Block.getDrops(extraState, (ServerLevel) level, pos,null, entity, tempTool));
-
+                if(!extraState.isAir() && extraState.is(MINEABLE_WITH_POWERTOOL) && !extraState.hasBlockEntity()){
+                    List<ItemStack> drops = Block.getDrops(extraState, (ServerLevel) level, pos,null, entity, tempTool);
                     for(ItemStack drop: drops){
                         if(drop != null){
                             if(isToolMagnetic(stack)){
@@ -179,6 +177,8 @@ public class PowerToolItem extends DiggerItem{
                     }
 
                     level.removeBlock(pos, false);
+                    BlockEvent.BreakEvent event = fixForgeEventBreakBlock(extraState, player, level, pos, tempTool);
+                    MinecraftForge.EVENT_BUS.post(event);
                 }
             }
         }
@@ -232,13 +232,6 @@ public class PowerToolItem extends DiggerItem{
     }
 
     @Override
-    public float getDestroySpeed(ItemStack pStack, BlockState pState) {
-        if(pState.is(Tags.Blocks.OBSIDIAN)) return 300.0f;
-        if(pState.is(BlockTags.DIRT)) return 8.0f;
-        return super.getDestroySpeed(pStack, pState);
-    }
-
-    @Override
     public void appendHoverText(ItemStack pStack, @Nullable Level pLevel, List<Component> pTooltipComponents, TooltipFlag pIsAdvanced) {
         CompoundTag tag = pStack.getTag();
         if(tag != null) {
@@ -266,7 +259,7 @@ public class PowerToolItem extends DiggerItem{
             tag.putInt(NBTTags.EXTENDED, 1);
             return PowerToolMode.TRIPLE;
         }
-        if(getMode(stack) == PowerToolMode.TRIPLE){
+        if(getMode(stack) == PowerToolMode.TRIPLE && isUpgraded(stack)){
             tag.putInt(NBTTags.EXTENDED, 2);
             return PowerToolMode.QUINTUPLE;
         }
@@ -274,10 +267,7 @@ public class PowerToolItem extends DiggerItem{
         return PowerToolMode.SINGLE;
     }
 
-    public static boolean isExtended(ItemStack stack){
-        CompoundTag tag = stack.getTag();
-        return tag != null && tag.contains(NBTTags.EXTENDED) && tag.getInt(NBTTags.EXTENDED) > 0;
-    }
+
 
     public TextComponent getModeTextComponent(PowerToolMode mode){
         if(mode == PowerToolMode.TRIPLE) return new TextComponent("\u00A7b3x3");
