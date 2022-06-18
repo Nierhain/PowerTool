@@ -5,6 +5,8 @@ import de.nierhain.powertool.setup.Registration;
 import net.minecraft.data.DataGenerator;
 import net.minecraftforge.client.model.generators.ItemModelProvider;
 import net.minecraftforge.common.data.ExistingFileHelper;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.ForgeRegistry;
 
 public class ItemModels extends ItemModelProvider {
 
@@ -14,7 +16,7 @@ public class ItemModels extends ItemModelProvider {
 
     @Override
     protected void registerModels() {
-        singleTexture(Registration.POWER_TOOL.get().getRegistryName().getPath(),mcLoc("item/generated"), "layer0", modLoc("item/powertool"));
-        singleTexture(Registration.UPGRADE_ITEM.get().getRegistryName().getPath(),mcLoc("item/generated"), "layer0", modLoc("item/upgrade"));
+        singleTexture(ForgeRegistries.ITEMS.getKey(Registration.POWER_TOOL.get()).toString(), mcLoc("item/generated"), "layer0", modLoc("item/powertool"));
+        singleTexture(ForgeRegistries.ITEMS.getKey(Registration.UPGRADE_ITEM.get()).toString(),mcLoc("item/generated"), "layer0", modLoc("item/upgrade"));
     }
 }

@@ -7,9 +7,9 @@ import net.minecraft.core.Direction;
 import net.minecraft.data.tags.BlockTagsProvider;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextColor;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
@@ -28,6 +28,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.Tags;
+import net.minecraftforge.server.command.TextComponentHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -123,8 +124,8 @@ public class PowerToolItem extends DiggerItem{
         ItemStack item = player.getItemInHand(hand);
         if(player.isShiftKeyDown()){
             int extension = toggleExtended(item);
-            TextComponent state = getModeTextComponent(extension);
-            player.displayClientMessage(new TextComponent("Mode: ").append(state), true);
+            MutableComponent state = getModeTextComponent(extension);
+            player.displayClientMessage(Component.literal("Mode: ").append(state), true);
             return new InteractionResultHolder<>(InteractionResult.SUCCESS, player.getItemInHand(hand));
         }
 
@@ -199,7 +200,7 @@ public class PowerToolItem extends DiggerItem{
     public void appendHoverText(ItemStack pStack, @Nullable Level pLevel, List<Component> pTooltipComponents, TooltipFlag pIsAdvanced) {
         CompoundTag tag = pStack.getTag();
         if(tag != null && !tag.contains(extendedTag)) {
-            pTooltipComponents.add(new TextComponent("Mode: ").append(getModeTextComponent(tag.getInt(extendedTag))));
+            pTooltipComponents.add(Component.literal("Mode: ").append(getModeTextComponent(tag.getInt(extendedTag))));
         }
         super.appendHoverText(pStack, pLevel, pTooltipComponents, pIsAdvanced);
     }
@@ -236,10 +237,10 @@ public class PowerToolItem extends DiggerItem{
         return tag.getInt(extendedTag);
     }
 
-    public TextComponent getModeTextComponent(int mode){
-        if(mode == THREE_BY_THREE) return new TextComponent("\u00A7b3x3");
-        if(mode == FIVE_BY_FIVE) return new TextComponent("\u00A755x5");
-        return new TextComponent("1x1");
+    public MutableComponent getModeTextComponent(int mode){
+        if(mode == THREE_BY_THREE) return Component.literal("\u00A7b3x3");
+        if(mode == FIVE_BY_FIVE) return Component.literal("\u00A755x5");
+        return Component.literal("1x1");
     }
 
     public boolean isUpgraded(CompoundTag tag){

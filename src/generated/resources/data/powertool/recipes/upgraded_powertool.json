@@ -13,7 +13,7 @@
     "item": "powertool:powertool",
     "nbt": {
       "isExtended": 0,
-      "isUpgraded": 1
+      "isUpgraded": true
     }
   }
 }

@@ -1,22 +1,22 @@
 {
   "type": "minecraft:crafting_shaped",
   "group": "powertool",
-  "pattern": [
-    "gag",
-    "ada",
-    "gag"
-  ],
   "key": {
-    "d": {
-      "tag": "forge:gems/diamond"
-    },
     "a": {
       "tag": "forge:gems/amethyst"
+    },
+    "d": {
+      "tag": "forge:gems/diamond"
     },
     "g": {
       "tag": "forge:ingots/gold"
     }
   },
+  "pattern": [
+    "gag",
+    "ada",
+    "gag"
+  ],
   "result": {
     "item": "powertool:upgrade"
   }
