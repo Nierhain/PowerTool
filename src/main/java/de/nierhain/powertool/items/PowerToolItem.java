@@ -1,33 +1,36 @@
 package de.nierhain.powertool.items;
 
-import de.nierhain.powertool.data.PowerToolTags;
 import de.nierhain.powertool.data.tiers.PowerToolTier;
+import de.nierhain.powertool.setup.NBTTags;
+import de.nierhain.powertool.utils.PowerToolMode;
+import de.nierhain.powertool.utils.PowerToolUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.data.tags.BlockTagsProvider;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TextColor;
 import net.minecraft.network.chat.TextComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
-import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.Tags;
+import net.minecraftforge.event.ForgeEventFactory;
+import net.minecraftforge.event.world.BlockEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,11 +38,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static de.nierhain.powertool.data.PowerToolTags.MINEABLE_WITH_POWERTOOL;
+import static de.nierhain.powertool.utils.PowerToolUtils.*;
 
 public class PowerToolItem extends DiggerItem{
-
-    private static String extendedTag = "isExtended";
-    private static String upgradedTag = "isUpgraded";
+    
     private static final int THREE_BY_THREE = 1;
     private static final int FIVE_BY_FIVE = 2;
     public PowerToolItem() {
@@ -48,9 +50,11 @@ public class PowerToolItem extends DiggerItem{
 
     @Override
     public void onCraftedBy(ItemStack pStack, Level pLevel, Player pPlayer) {
-        CompoundTag tag = pStack.getTag();
-        if(!tag.contains(extendedTag)) tag.putInt(extendedTag, 0);
-        if(!tag.contains(upgradedTag)) tag.putBoolean(upgradedTag, false);
+        CompoundTag tag = pStack.getOrCreateTag();
+        if(!tag.contains(NBTTags.EXTENDED)) tag.putInt(NBTTags.EXTENDED, 0);
+        if(!tag.contains(NBTTags.UPGRADED)) tag.putBoolean(NBTTags.UPGRADED, false);
+        if(!tag.contains(NBTTags.LUCKY)) tag.putBoolean(NBTTags.LUCKY, false);
+        if(!tag.contains(NBTTags.MAGNETIC)) tag.putBoolean(NBTTags.MAGNETIC, false);
         super.onCraftedBy(pStack, pLevel, pPlayer);
     }
 
@@ -122,7 +126,7 @@ public class PowerToolItem extends DiggerItem{
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack item = player.getItemInHand(hand);
         if(player.isShiftKeyDown()){
-            int extension = toggleExtended(item);
+            PowerToolMode extension = toggleExtended(item);
             TextComponent state = getModeTextComponent(extension);
             player.displayClientMessage(new TextComponent("Mode: ").append(state), true);
             return new InteractionResultHolder<>(InteractionResult.SUCCESS, player.getItemInHand(hand));
@@ -132,33 +136,69 @@ public class PowerToolItem extends DiggerItem{
     }
 
     @Override
-    public boolean mineBlock(ItemStack stack, Level level, BlockState state, BlockPos pos, LivingEntity entity) {
-        if(!isExtended(stack)) {
-            return super.mineBlock(stack, level, state, pos, entity);
-        }
-
-        List<BlockPos> blocks = getExtraBlocks(level, pos, entity, getMode(stack));
-        for(BlockPos block : blocks){
-            level.getBlockState(block);
-        }
+    public boolean mineBlock(ItemStack stack, Level level, BlockState state, BlockPos originalPos, LivingEntity entity) {
+        Player player = (Player) entity;
+        List<BlockPos> blocks = getAllBlocks(level, originalPos, entity, getMode(stack));
         if(!level.isClientSide) {
-            for (BlockPos extra:
+            List<ItemStack> drops = new ArrayList<>();
+            ItemStack tempTool = stack.copy();
+            int fortune = 0;
+            for (BlockPos pos:
                  blocks) {
-                BlockState extraState = level.getBlockState(extra);
+                BlockState extraState = level.getBlockState(pos);
                 Block block = extraState.getBlock();
-                if(!extraState.isAir() && extraState.is(MINEABLE_WITH_POWERTOOL)){
-                    block.playerDestroy(level, (Player) entity,  extra, extraState, level.getBlockEntity(extra), stack);
-                    level.removeBlock(extra, false);
+                if(!extraState.isAir() && extraState.is(MINEABLE_WITH_POWERTOOL) && extraState.hasBlockEntity()){
+                    BlockEvent.BreakEvent event = new BlockEvent.BreakEvent(level, pos, extraState, player);
+                    MinecraftForge.EVENT_BUS.post(event);
+                    if(isToolLucky(stack)){
+                        fortune = Enchantments.BLOCK_FORTUNE.getMaxLevel();
+                        tempTool.enchant(Enchantments.BLOCK_FORTUNE, fortune);
+                    }
+                    drops.addAll(Block.getDrops(extraState, (ServerLevel) level, pos,null, entity, tempTool));
+
+                    for(ItemStack drop: drops){
+                        if(drop != null){
+                            if(isToolMagnetic(stack)){
+                                int wasPickedUp = ForgeEventFactory.onItemPickup(new ItemEntity(level, pos.getX(), pos.getY(), pos.getZ(), drop), player);
+                                if(wasPickedUp == 0){
+                                    if(!player.addItem(drop)){
+                                        Block.popResource(level, pos, drop);
+                                    }
+                                }
+                            } else {
+                                Block.popResource(level, pos, drop);
+                            }
+                        }
+                    }
+
+                    int exp = block.getExpDrop(extraState, level, pos, fortune, 0);
+                    if(isToolMagnetic(stack)) {
+                        player.giveExperiencePoints(exp);
+                    } else {
+                        block.popExperience((ServerLevel) level, pos, exp);
+                    }
+
+                    level.removeBlock(pos, false);
                 }
             }
         }
+        return true;
+    }
 
-        return super.mineBlock(stack, level, state, pos, entity);
+    private static BlockEvent.BreakEvent fixForgeEventBreakBlock(BlockState state, Player player, Level world, BlockPos pos, ItemStack tool) {
+        BlockEvent.BreakEvent event = new BlockEvent.BreakEvent(world, pos, state, player);
+        // Handle empty block or player unable to break block scenario
+        if (state != null && ForgeHooks.isCorrectToolForDrops(state, player)) {
+            int bonusLevel = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.BLOCK_FORTUNE, tool);
+            int silklevel = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.SILK_TOUCH, tool);
+            event.setExpToDrop(state.getExpDrop(world, pos, bonusLevel, silklevel));
+        }
+
+        return event;
     }
 
     @NotNull
-    public static List<BlockPos> getExtraBlocks(Level level, BlockPos pos, LivingEntity entity, int mode) {
-        if(mode == 0) return new ArrayList<BlockPos>();
+    public static List<BlockPos> getAllBlocks(Level level, BlockPos pos, LivingEntity entity, PowerToolMode mode) {
         BlockHitResult lookingAt = getPlayerPOVHitResult(level, (Player) entity, ClipContext.Fluid.NONE);
         Direction side = lookingAt.getDirection();
         boolean vertical = side.getAxis().isVertical();
@@ -168,7 +208,10 @@ public class PowerToolItem extends DiggerItem{
         Direction left = right.getOpposite();
 
         List<BlockPos> blocks = new ArrayList<>();
-
+        if(mode == PowerToolMode.SINGLE) {
+            blocks.add(pos);
+            return blocks;
+        }
         int size = getModeSize(mode);
         BlockPos start = pos.relative(down).relative(right, size / 2);
         BlockPos currentLayer = start;
@@ -182,9 +225,9 @@ public class PowerToolItem extends DiggerItem{
         return blocks;
     }
 
-    private static int getModeSize(int mode){
-        if(mode == THREE_BY_THREE) return 3;
-        if(mode == FIVE_BY_FIVE) return 5;
+    private static int getModeSize(PowerToolMode mode){
+        if(mode == PowerToolMode.TRIPLE) return 3;
+        if(mode == PowerToolMode.QUINTUPLE) return 5;
         return 0;
     }
 
@@ -198,8 +241,11 @@ public class PowerToolItem extends DiggerItem{
     @Override
     public void appendHoverText(ItemStack pStack, @Nullable Level pLevel, List<Component> pTooltipComponents, TooltipFlag pIsAdvanced) {
         CompoundTag tag = pStack.getTag();
-        if(tag != null && !tag.contains(extendedTag)) {
-            pTooltipComponents.add(new TextComponent("Mode: ").append(getModeTextComponent(tag.getInt(extendedTag))));
+        if(tag != null) {
+            pTooltipComponents.add(new TextComponent("Mode: ").append(getModeTextComponent(getMode(pStack))));
+            pTooltipComponents.add(new TextComponent("Magnetic: ").append(getBooleanComponent(tag.getBoolean(NBTTags.MAGNETIC))));
+            pTooltipComponents.add(new TextComponent("Lucky: ").append(getBooleanComponent(tag.getBoolean(NBTTags.LUCKY))));
+            pTooltipComponents.add(new TextComponent("Upgraded: ").append(getBooleanComponent(tag.getBoolean(NBTTags.UPGRADED))));
         }
         super.appendHoverText(pStack, pLevel, pTooltipComponents, pIsAdvanced);
     }
@@ -214,39 +260,32 @@ public class PowerToolItem extends DiggerItem{
         return super.onBlockStartBreak(itemstack, pos, player);
     }
 
-    public int toggleExtended(ItemStack stack){
+    public PowerToolMode toggleExtended(ItemStack stack){
         CompoundTag tag = stack.getOrCreateTag();
-        if(!tag.contains(extendedTag)){
-            tag.putInt(extendedTag, 0);
-            return 0;
+        if(getMode(stack) == PowerToolMode.SINGLE) {
+            tag.putInt(NBTTags.EXTENDED, 1);
+            return PowerToolMode.TRIPLE;
         }
-        int value = tag.getInt(extendedTag) + 1;
-        if(value >= 3 || (value > 1 && !isUpgraded(tag))) value = 0;
-        tag.putInt(extendedTag, value);
-        return tag.getInt(extendedTag);
+        if(getMode(stack) == PowerToolMode.TRIPLE){
+            tag.putInt(NBTTags.EXTENDED, 2);
+            return PowerToolMode.QUINTUPLE;
+        }
+        tag.putInt(NBTTags.EXTENDED, 0);
+        return PowerToolMode.SINGLE;
     }
 
     public static boolean isExtended(ItemStack stack){
         CompoundTag tag = stack.getTag();
-        return tag != null && tag.contains(extendedTag) && tag.getInt(extendedTag) > 0;
+        return tag != null && tag.contains(NBTTags.EXTENDED) && tag.getInt(NBTTags.EXTENDED) > 0;
     }
 
-    public static int getMode(ItemStack stack){
-        CompoundTag tag = stack.getTag();
-        return tag.getInt(extendedTag);
-    }
-
-    public TextComponent getModeTextComponent(int mode){
-        if(mode == THREE_BY_THREE) return new TextComponent("\u00A7b3x3");
-        if(mode == FIVE_BY_FIVE) return new TextComponent("\u00A755x5");
+    public TextComponent getModeTextComponent(PowerToolMode mode){
+        if(mode == PowerToolMode.TRIPLE) return new TextComponent("\u00A7b3x3");
+        if(mode == PowerToolMode.QUINTUPLE) return new TextComponent("\u00A755x5");
         return new TextComponent("1x1");
     }
 
-    public boolean isUpgraded(CompoundTag tag){
-        if(!tag.contains(upgradedTag)) {
-            tag.putBoolean(upgradedTag, false);
-            return false;
-        }
-        return tag.getBoolean(upgradedTag);
+    public TextComponent getBooleanComponent(boolean value){
+        return new TextComponent(value ? "yes" : "no");
     }
 }

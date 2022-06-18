@@ -6,13 +6,13 @@
       "item": "powertool:powertool"
     },
     {
-      "item": "powertool:upgrade"
+      "item": "powertool:fortune_upgrade"
     }
   ],
   "result": {
     "item": "powertool:powertool",
     "nbt": {
-      "isUpgraded": true
+      "isLucky": true
     }
   }
 }

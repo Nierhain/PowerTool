@@ -21,10 +21,6 @@
     }
   },
   "result": {
-    "item": "powertool:powertool",
-    "nbt": {
-      "isUpgraded" : false,
-      "isExtended": 0
-    }
+    "item": "powertool:powertool"
   }
 }

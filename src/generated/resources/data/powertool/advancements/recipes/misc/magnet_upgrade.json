@@ -2,7 +2,7 @@
   "parent": "minecraft:recipes/root",
   "rewards": {
     "recipes": [
-      "powertool:upgraded_powertool"
+      "powertool:magnet_upgrade"
     ]
   },
   "criteria": {
@@ -21,7 +21,7 @@
     "has_the_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "powertool:upgraded_powertool"
+        "recipe": "powertool:magnet_upgrade"
       }
     }
   },

@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "powertool",
+  "pattern": [
+    "rlr",
+    "lal",
+    "rlr"
+  ],
+  "key": {
+    "a": {
+      "tag": "forge:gems/amethyst"
+    },
+    "r": {
+      "tag": "forge:dusts/redstone"
+    },
+    "l": {
+      "tag": "forge:gems/lapis"
+    }
+  },
+  "result": {
+    "item": "powertool:fortune_upgrade"
+  }
+}

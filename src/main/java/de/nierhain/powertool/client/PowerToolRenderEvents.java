@@ -33,6 +33,8 @@ import net.minecraftforge.fml.common.Mod;
 
 import java.util.List;
 
+import static de.nierhain.powertool.utils.PowerToolUtils.getMode;
+
 @Mod.EventBusSubscriber(modid = PowerTool.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class PowerToolRenderEvents {
     @SubscribeEvent
@@ -48,7 +50,7 @@ public class PowerToolRenderEvents {
         BlockPos origin = blockTrace.getBlockPos();
         BlockState state = level.getBlockState(origin);
 
-        List<BlockPos> extraBlocks = PowerToolItem.getExtraBlocks(level, origin, player, PowerToolItem.getMode(player.getMainHandItem()));
+        List<BlockPos> extraBlocks = PowerToolItem.getAllBlocks(level, origin, player, getMode(player.getMainHandItem()));
         // set up renderer
         LevelRenderer levelRenderer = event.getLevelRenderer();
         PoseStack matrices = event.getPoseStack();
@@ -92,7 +94,7 @@ public class PowerToolRenderEvents {
         if(progress == null) return;
 
         BlockState state = level.getBlockState(target);
-        List<BlockPos> extraBlocks = PowerToolItem.getExtraBlocks(level, target, player, PowerToolItem.getMode(player.getMainHandItem()));
+        List<BlockPos> extraBlocks = PowerToolItem.getAllBlocks(level, target, player, getMode(player.getMainHandItem()));
         // set up buffers
         PoseStack matrices = event.getPoseStack();
         matrices.pushPose();
