@@ -1,11 +1,12 @@
 package de.nierhain.powertool.handler;
 
+import de.nierhain.powertool.PowerTool;
 import de.nierhain.powertool.setup.Registration;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-@Mod.EventBusSubscriber
+@Mod.EventBusSubscriber(modid = PowerTool.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class BreakSpeedHandler {
     private static float TICKS_TO_BREAK = 3;
     @SubscribeEvent

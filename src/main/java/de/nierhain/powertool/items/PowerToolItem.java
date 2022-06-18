@@ -73,7 +73,7 @@ public class PowerToolItem extends DiggerItem{
 
     @Override
     public boolean isEnchantable(ItemStack pStack) {
-        return true;
+        return false;
     }
 
     @Override
