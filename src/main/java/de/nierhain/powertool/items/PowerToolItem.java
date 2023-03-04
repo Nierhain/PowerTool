@@ -130,7 +130,7 @@ public class PowerToolItem extends DiggerItem{
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack item = player.getItemInHand(hand);
-        if(player.isShiftKeyDown()){
+        if(player.isShiftKeyDown()) {
             PowerToolMode extension = toggleExtended(item);
             TextComponent state = getModeTextComponent(extension);
             player.displayClientMessage(new TextComponent("Mode: ").append(state), true);

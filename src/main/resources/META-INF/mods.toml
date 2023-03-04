@@ -5,9 +5,17 @@ license="MIT License"
 modId="powertool"
 version="${file.jarVersion}"
 displayName="PowerTool"
-logoFile="powertool.png"
-credits="Thanks for this example mod goes to Java"
-authors="Love, Cheese and small house plants"
+displayURL="https://github.com/Nierhain/PowerTool"
+logoFile="logo.png"
+credits="Malcolm Riley for the awesome art"
+authors="Nierhain"
 description='''
-A powerful tool for a powerful purpose
+Ever asked yourself "What if the harvesting tool from Satisfactory was available in Minecraft"?
+Now you have the answer!
+
+Features:
+- Pickaxe, Shovel and Axe in one
+- uniform break speed
+- AoE mining (upgradable to 5x5!)
+- upgradable with magnet, fortune and more
 '''
