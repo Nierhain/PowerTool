@@ -44,7 +44,7 @@ public class PowerToolRecipe extends RecipeProvider {
                 .define('n', Tags.Items.INGOTS_NETHERITE)
                 .define('d', Tags.Items.GEMS_DIAMOND)
                 .group("powertool")
-                .unlockedBy("powertool", InventoryChangeTrigger.TriggerInstance.hasItems(Items.NETHERITE_INGOT))
+                .unlockedBy("root", InventoryChangeTrigger.TriggerInstance.hasItems(Items.NETHERITE_INGOT))
                 .save(finishedRecipe);
         ShapedRecipeBuilder.shaped(Registration.UPGRADE_ITEM.get())
                 .pattern("gag")

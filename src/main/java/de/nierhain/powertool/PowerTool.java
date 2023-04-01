@@ -18,14 +18,10 @@ import org.slf4j.Logger;
 public class PowerTool
 {
     public static final String MODID = "powertool";
-    private static final Logger LOGGER = LogUtils.getLogger();
-
-
+    public static final Logger LOGGER = LogUtils.getLogger();
     public PowerTool()
     {
         Registration.init();
         MinecraftForge.EVENT_BUS.register(this);
     }
-
-
 }

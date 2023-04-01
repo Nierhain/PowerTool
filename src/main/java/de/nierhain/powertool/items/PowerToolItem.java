@@ -8,10 +8,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
@@ -25,6 +25,7 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.BlockHitResult;
@@ -32,7 +33,8 @@ import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.Tags;
 import net.minecraftforge.event.ForgeEventFactory;
-import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.event.level.BlockEvent;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -132,13 +134,22 @@ public class PowerToolItem extends DiggerItem{
         ItemStack item = player.getItemInHand(hand);
         if(player.isShiftKeyDown()) {
             PowerToolMode extension = toggleExtended(item);
-            TextComponent state = getModeTextComponent(extension);
-            player.displayClientMessage(new TextComponent("Mode: ").append(state), true);
+            Component state = getModeTextComponent(extension);
+            player.displayClientMessage(Component.literal("Mode: ").append(state), true);
             return new InteractionResultHolder<>(InteractionResult.SUCCESS, player.getItemInHand(hand));
         }
 
         return new InteractionResultHolder<>(InteractionResult.SUCCESS, player.getItemInHand(hand));
     }
+
+    @Override
+    public float getDestroySpeed(ItemStack stack, BlockState block) {
+        if(block.is(Tags.Blocks.OBSIDIAN) || block.is(Tags.Blocks.STORAGE_BLOCKS_NETHERITE) || block.is(Tags.Blocks.ORES_NETHERITE_SCRAP)){
+            return 150.0f;
+        }
+        return super.getDestroySpeed(stack, block);
+    }
+
 
     @Override
     public boolean mineBlock(ItemStack stack, Level level, BlockState state, BlockPos originalPos, LivingEntity entity) {
@@ -171,7 +182,7 @@ public class PowerToolItem extends DiggerItem{
                         }
                     }
 
-                    int exp = block.getExpDrop(extraState, level, pos, fortune, 0);
+                    int exp = block.getExpDrop(extraState, level, RandomSource.create(), pos, fortune, 0);
                     if(isToolMagnetic(stack)) {
                         player.giveExperiencePoints(exp);
                     } else {
@@ -193,7 +204,7 @@ public class PowerToolItem extends DiggerItem{
         if (state != null && ForgeHooks.isCorrectToolForDrops(state, player)) {
             int bonusLevel = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.BLOCK_FORTUNE, tool);
             int silklevel = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.SILK_TOUCH, tool);
-            event.setExpToDrop(state.getExpDrop(world, pos, bonusLevel, silklevel));
+            event.setExpToDrop(state.getExpDrop(world, RandomSource.create(), pos, bonusLevel, silklevel));
         }
 
         return event;
@@ -237,10 +248,10 @@ public class PowerToolItem extends DiggerItem{
     public void appendHoverText(ItemStack pStack, @Nullable Level pLevel, List<Component> pTooltipComponents, TooltipFlag pIsAdvanced) {
         CompoundTag tag = pStack.getTag();
         if(tag != null) {
-            pTooltipComponents.add(new TextComponent("Mode: ").append(getModeTextComponent(getMode(pStack))));
-            pTooltipComponents.add(new TextComponent("Magnetic: ").append(getBooleanComponent(tag.getBoolean(NBTTags.MAGNETIC))));
-            pTooltipComponents.add(new TextComponent("Lucky: ").append(getBooleanComponent(tag.getBoolean(NBTTags.LUCKY))));
-            pTooltipComponents.add(new TextComponent("Upgraded: ").append(getBooleanComponent(tag.getBoolean(NBTTags.UPGRADED))));
+            pTooltipComponents.add(Component.literal("Mode: ").append(getModeTextComponent(getMode(pStack))));
+            pTooltipComponents.add(Component.literal("Magnetic: ").append(getBooleanComponent(tag.getBoolean(NBTTags.MAGNETIC))));
+            pTooltipComponents.add(Component.literal("Lucky: ").append(getBooleanComponent(tag.getBoolean(NBTTags.LUCKY))));
+            pTooltipComponents.add(Component.literal("Upgraded: ").append(getBooleanComponent(tag.getBoolean(NBTTags.UPGRADED))));
         }
         super.appendHoverText(pStack, pLevel, pTooltipComponents, pIsAdvanced);
     }
@@ -271,13 +282,13 @@ public class PowerToolItem extends DiggerItem{
 
 
 
-    public TextComponent getModeTextComponent(PowerToolMode mode){
-        if(mode == PowerToolMode.TRIPLE) return new TextComponent("\u00A7b3x3");
-        if(mode == PowerToolMode.QUINTUPLE) return new TextComponent("\u00A755x5");
-        return new TextComponent("1x1");
+    public Component getModeTextComponent(PowerToolMode mode){
+        if(mode == PowerToolMode.TRIPLE) return Component.literal("\u00A7b3x3");
+        if(mode == PowerToolMode.QUINTUPLE) return Component.literal("\u00A755x5");
+        return Component.literal("1x1");
     }
 
-    public TextComponent getBooleanComponent(boolean value){
-        return new TextComponent(value ? "yes" : "no");
+    public Component getBooleanComponent(boolean value){
+        return Component.literal(value ? "yes" : "no");
     }
 }
