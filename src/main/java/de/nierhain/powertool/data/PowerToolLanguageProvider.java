@@ -9,7 +9,7 @@ import static de.nierhain.powertool.setup.Registration.TAB_NAME;
 public class PowerToolLanguageProvider extends LanguageProvider {
 
     public PowerToolLanguageProvider(DataGenerator gen, String modid, String locale) {
-        super(gen, modid, locale);
+        super(gen.getPackOutput(), modid, locale);
     }
 
     @Override

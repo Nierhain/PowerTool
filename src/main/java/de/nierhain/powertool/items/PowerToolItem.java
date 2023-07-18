@@ -43,7 +43,6 @@ import java.util.Collection;
 import java.util.List;
 
 import static de.nierhain.powertool.data.PowerToolTags.MINEABLE_WITH_POWERTOOL;
-import static de.nierhain.powertool.setup.Registration.ITEM_GROUP;
 import static de.nierhain.powertool.utils.PowerToolUtils.*;
 
 public class PowerToolItem extends DiggerItem{
@@ -51,7 +50,7 @@ public class PowerToolItem extends DiggerItem{
     private static final int THREE_BY_THREE = 1;
     private static final int FIVE_BY_FIVE = 2;
     public PowerToolItem() {
-        super(0, 0, PowerToolTier.POWERTOOL, MINEABLE_WITH_POWERTOOL, new Item.Properties().tab(ITEM_GROUP));
+        super(0, 0, PowerToolTier.POWERTOOL, MINEABLE_WITH_POWERTOOL, new Item.Properties());
     }
 
     @Override
@@ -112,10 +111,10 @@ public class PowerToolItem extends DiggerItem{
     @Override
     public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity entity, InteractionHand hand) {
         if (entity instanceof net.minecraftforge.common.IForgeShearable target) {
-            if (entity.level.isClientSide) return net.minecraft.world.InteractionResult.SUCCESS;
-            BlockPos pos = new BlockPos(entity.getX(), entity.getY(), entity.getZ());
-            if (target.isShearable(stack, entity.level, pos)) {
-                java.util.List<ItemStack> drops = target.onSheared(player, stack, entity.level, pos,
+            if (entity.level().isClientSide()) return net.minecraft.world.InteractionResult.SUCCESS;
+            BlockPos pos = new BlockPos(entity.getBlockX(), entity.getBlockY(), entity.getBlockZ());
+            if (target.isShearable(stack, entity.level(), pos)) {
+                java.util.List<ItemStack> drops = target.onSheared(player, stack, entity.level(), pos,
                         net.minecraft.world.item.enchantment.EnchantmentHelper.getItemEnchantmentLevel(net.minecraft.world.item.enchantment.Enchantments.BLOCK_FORTUNE, stack));
                 java.util.Random rand = new java.util.Random();
                 drops.forEach(d -> {

@@ -7,6 +7,8 @@ import com.google.gson.JsonPrimitive;
 import de.nierhain.powertool.PowerTool;
 import de.nierhain.powertool.utils.DefaultTags;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -29,7 +31,7 @@ public class NBTRecipe extends ShapelessRecipe {
     private final NonNullList<Ingredient> items;
 
     public NBTRecipe(ResourceLocation id,String group, ItemStack output, NonNullList<Ingredient> items) {
-        super(id, group, output, items);
+        super(id, group, CraftingBookCategory.EQUIPMENT,output, items);
         this.id = id;
         this.output = output;
         this.items = items;
@@ -48,8 +50,9 @@ public class NBTRecipe extends ShapelessRecipe {
         return RecipeMatcher.findMatches(inputs, this.items) != null;
     }
 
+
     @Override
-    public ItemStack assemble(CraftingContainer container) {
+    public ItemStack assemble(CraftingContainer container, RegistryAccess access) {
         ItemStack result = output.copy();
         for(int i = 0; i < container.getContainerSize(); i++){
             ItemStack stack = container.getItem(i);
@@ -83,10 +86,6 @@ public class NBTRecipe extends ShapelessRecipe {
         return true;
     }
 
-    @Override
-    public ItemStack getResultItem() {
-        return ItemStack.EMPTY;
-    }
 
     @Override
     public ResourceLocation getId() {
@@ -151,7 +150,7 @@ public class NBTRecipe extends ShapelessRecipe {
             for(Ingredient ing : recipe.getIngredients()){
                 ing.toNetwork(buf);
             }
-            buf.writeItemStack(recipe.getResultItem(), false);
+            buf.writeItemStack(recipe.getResultItem(RegistryAccess.EMPTY), false);
         }
     }
 }

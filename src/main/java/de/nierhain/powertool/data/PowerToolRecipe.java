@@ -13,6 +13,7 @@ import net.minecraft.advancements.RequirementsStrategy;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.recipes.*;
 import net.minecraft.resources.ResourceLocation;
@@ -23,6 +24,7 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.common.Tags;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -30,12 +32,12 @@ import java.util.function.Consumer;
 
 public class PowerToolRecipe extends RecipeProvider {
     public PowerToolRecipe(DataGenerator pGenerator) {
-        super(pGenerator);
+        super(pGenerator.getPackOutput());
     }
 
     @Override
-    protected void buildCraftingRecipes(Consumer<FinishedRecipe> finishedRecipe) {
-        ShapedRecipeBuilder.shaped(Registration.POWER_TOOL.get())
+    protected void buildRecipes(Consumer<FinishedRecipe> finishedRecipe) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, Registration.POWER_TOOL.get())
                 .pattern("igg")
                 .pattern("gng")
                 .pattern("ggd")
@@ -46,7 +48,7 @@ public class PowerToolRecipe extends RecipeProvider {
                 .group("powertool")
                 .unlockedBy("root", InventoryChangeTrigger.TriggerInstance.hasItems(Items.NETHERITE_INGOT))
                 .save(finishedRecipe);
-        ShapedRecipeBuilder.shaped(Registration.UPGRADE_ITEM.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC,Registration.UPGRADE_ITEM.get())
                 .pattern("gag")
                 .pattern("ada")
                 .pattern("gag")
@@ -56,7 +58,7 @@ public class PowerToolRecipe extends RecipeProvider {
                 .group("powertool")
                 .unlockedBy("powertool", InventoryChangeTrigger.TriggerInstance.hasItems(Items.NETHERITE_INGOT))
                 .save(finishedRecipe);
-        ShapedRecipeBuilder.shaped(Registration.MAGNET_UPGRADE.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC,Registration.MAGNET_UPGRADE.get())
                 .pattern("  i")
                 .pattern(" r ")
                 .pattern("i  ")
@@ -65,7 +67,7 @@ public class PowerToolRecipe extends RecipeProvider {
                 .group("powertool")
                 .unlockedBy("powertool", InventoryChangeTrigger.TriggerInstance.hasItems(Items.NETHERITE_INGOT))
                 .save(finishedRecipe);
-        ShapedRecipeBuilder.shaped(Registration.FORTUNE_UPGRADE.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC,Registration.FORTUNE_UPGRADE.get())
                 .pattern("rlr")
                 .pattern("lal")
                 .pattern("rlr")
@@ -97,6 +99,7 @@ public class PowerToolRecipe extends RecipeProvider {
                 .unlockedBy("powertool", InventoryChangeTrigger.TriggerInstance.hasItems(Items.NETHERITE_INGOT))
                 .save(finishedRecipe, new ResourceLocation(PowerTool.MODID,"lucky_powertool"));
     }
+
 
     public static class NBTRecipeBuilder implements RecipeBuilder {
         private final Item result;
@@ -215,7 +218,7 @@ public class PowerToolRecipe extends RecipeProvider {
             }
             json.add("ingredients", jsonArray);
             JsonObject result = new JsonObject();
-            result.addProperty("item", Registry.ITEM.getKey(this.result).toString());
+            result.addProperty("item", ForgeRegistries.ITEMS.getKey(this.result).toString());
             result.add("nbt", this.nbt);
 
             if(this.count > 1){

@@ -17,7 +17,7 @@ public class BreakSpeedHandler {
     public static void onBreakSpeed(PlayerEvent.BreakSpeed event){
 
         boolean isTool = event.getEntity().getMainHandItem().is(Registration.POWER_TOOL.get());
-        Level level = event.getEntity().getLevel();
+        Level level = event.getEntity().level();
         Optional<BlockPos> pos = event.getPosition();
         float blockHardness = event.getState().getDestroySpeed(level, pos.get());
         float hardnessCoefficient = 30f; // see: https://minecraft.fandom.com/wiki/Breaking#Calculation
