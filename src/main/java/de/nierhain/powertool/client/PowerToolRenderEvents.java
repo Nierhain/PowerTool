@@ -26,8 +26,8 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.DrawSelectionEvent;
-import net.minecraftforge.client.event.RenderLevelLastEvent;
+import net.minecraftforge.client.event.RenderHighlightEvent;
+import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -39,7 +39,7 @@ import static de.nierhain.powertool.utils.PowerToolUtils.isExtended;
 @Mod.EventBusSubscriber(modid = PowerTool.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class PowerToolRenderEvents {
     @SubscribeEvent
-    public static void OnBlockHighlight(DrawSelectionEvent.HighlightBlock event){
+    public static void OnBlockHighlight(RenderHighlightEvent.Block event){
         Level level = Minecraft.getInstance().level;
         Player player = Minecraft.getInstance().player;
 
@@ -74,7 +74,8 @@ public class PowerToolRenderEvents {
     }
 
     @SubscribeEvent
-    public static void OnExtraBlockDamage(RenderLevelLastEvent event){
+    public static void OnExtraBlockDamage(RenderLevelStageEvent event){
+        if(event.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES) return;
         MultiPlayerGameMode controller = Minecraft.getInstance().gameMode;
         if(controller == null || !controller.isDestroying()) return;
 

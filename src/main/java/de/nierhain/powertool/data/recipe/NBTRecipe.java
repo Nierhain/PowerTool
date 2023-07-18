@@ -16,6 +16,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.util.RecipeMatcher;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -107,7 +108,7 @@ public class NBTRecipe extends ShapelessRecipe {
         public static final ResourceLocation ID = new ResourceLocation(PowerTool.MODID, "nbt_crafting");
 
         @Override
-        public NBTRecipe fromJson(ResourceLocation id, JsonObject json) {
+        public @NotNull NBTRecipe fromJson(ResourceLocation id, JsonObject json) {
             ItemStack output = ShapedRecipe.itemStackFromJson(GsonHelper.getAsJsonObject(json, "result"));
             CompoundTag tag = output.getTag();
             JsonObject nbt = GsonHelper.getAsJsonObject(json, "result").getAsJsonObject("nbt");
@@ -133,12 +134,10 @@ public class NBTRecipe extends ShapelessRecipe {
 
         @Nullable
         @Override
-        public NBTRecipe fromNetwork(ResourceLocation recipeId, FriendlyByteBuf buf) {
+        public NBTRecipe fromNetwork(@NotNull ResourceLocation recipeId, FriendlyByteBuf buf) {
             String group = buf.readUtf();
             NonNullList<Ingredient> inputs = NonNullList.withSize(buf.readInt(), Ingredient.EMPTY);
-            for(int i = 0; i < inputs.size(); i++){
-                inputs.set(i, Ingredient.fromNetwork(buf));
-            }
+            inputs.replaceAll(ignored -> Ingredient.fromNetwork(buf));
 
 
             ItemStack output = buf.readItem();
@@ -153,26 +152,6 @@ public class NBTRecipe extends ShapelessRecipe {
                 ing.toNetwork(buf);
             }
             buf.writeItemStack(recipe.getResultItem(), false);
-        }
-
-        @Override
-        public RecipeSerializer<?> setRegistryName(ResourceLocation name) {
-            return INSTANCE;
-        }
-
-        @Nullable
-        @Override
-        public ResourceLocation getRegistryName() {
-            return ID;
-        }
-
-        @Override
-        public Class<RecipeSerializer<?>> getRegistryType() {
-            return Serializer.castClass(RecipeSerializer.class);
-        }
-
-        private static <G> Class<G> castClass(Class<?> cls){
-            return (Class<G>)cls;
         }
     }
 }

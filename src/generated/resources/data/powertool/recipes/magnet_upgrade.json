@@ -1,11 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
   "group": "powertool",
-  "pattern": [
-    "  i",
-    " r ",
-    "i  "
-  ],
   "key": {
     "i": {
       "tag": "forge:ingots/iron"
@@ -14,6 +9,11 @@
       "tag": "forge:dusts/redstone"
     }
   },
+  "pattern": [
+    "  i",
+    " r ",
+    "i  "
+  ],
   "result": {
     "item": "powertool:magnet_upgrade"
   }
